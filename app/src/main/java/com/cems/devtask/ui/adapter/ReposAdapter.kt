@@ -1,34 +1,51 @@
 package com.cems.devtask.ui.adapter
 
 import android.view.ViewGroup
-import androidx.paging.PagingDataAdapter
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
+import android.widget.Filter
+import android.widget.Filterable
 import androidx.recyclerview.widget.RecyclerView
 import com.cems.devtask.model.ReposItem
 import com.cems.devtask.ui.adapter.viewHolder.ReposViewHolder
 
 class ReposAdapter(private val listener: ((ReposItem) -> Unit)? = null) :
-    PagingDataAdapter<ReposItem, RecyclerView.ViewHolder>(REPO_COMPARATOR) {
+    RecyclerView.Adapter<ReposViewHolder>(), Filterable {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+    var items = ArrayList<ReposItem>()
+        set(value) {
+            val size = field.size
+            field.addAll(value)
+            val sizeNew = field.size
+            notifyItemRangeInserted(size, sizeNew)
+        }
+    var itemsFiltered = items
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ReposViewHolder {
         return ReposViewHolder.create(parent)
     }
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val repoItem = getItem(position)
-        if (repoItem != null) {
-            (holder as ReposViewHolder).bind(repoItem, listener)
-        }
+    override fun onBindViewHolder(holder: ReposViewHolder, position: Int) {
+        val repoItem = itemsFiltered[position]
+        holder.bind(repoItem, listener)
     }
 
-    companion object {
-        private val REPO_COMPARATOR = object : DiffUtil.ItemCallback<ReposItem>() {
-            override fun areItemsTheSame(oldItem: ReposItem, newItem: ReposItem) =
-                oldItem.id == newItem.id
+    override fun getItemCount() = itemsFiltered.size
 
-            override fun areContentsTheSame(oldItem: ReposItem, newItem: ReposItem) =
-                oldItem == newItem
+    override fun getFilter() = object : Filter() {
+        override fun performFiltering(constraint: CharSequence?): FilterResults {
+            if (constraint.isNullOrEmpty())
+                itemsFiltered = items
+            else {
+                itemsFiltered = ArrayList()
+                items.forEach {
+                    if (!it.name.isNullOrEmpty() && it.name!!.contains(constraint, true))
+                        itemsFiltered.add(it)
+                }
+            }
+            return FilterResults()
+        }
+
+        override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
+            notifyDataSetChanged()
         }
     }
 }

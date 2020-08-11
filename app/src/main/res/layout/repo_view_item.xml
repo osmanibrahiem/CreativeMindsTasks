@@ -21,8 +21,8 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_margin="@dimen/_5sdp"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/_5sdp">
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/owner_profile_img"

@@ -21,7 +21,8 @@ val retrofitModule = module {
     single<Call.Factory> {
         val cacheFile = cacheFile(androidContext())
         val cache = cache(cacheFile)
-        okHttp(cache, androidContext())
+        okHttp(cache)
+//        okHttp(cache, androidContext())
     }
 
     single {
@@ -84,7 +85,8 @@ private fun retrofit(callFactory: Call.Factory) = Retrofit.Builder()
     .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
     .build()
 
-private fun okHttp(cache: Cache, context: Context) = OkHttpClient.Builder()
+//private fun okHttp(cache: Cache, context: Context) = OkHttpClient.Builder()
+private fun okHttp(cache: Cache) = OkHttpClient.Builder()
     .cache(cache)
     .addNetworkInterceptor(getResponseInterceptor())
 //    .addInterceptor(getOfflineResponseInterceptor(context))

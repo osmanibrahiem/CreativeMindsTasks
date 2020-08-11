@@ -7,16 +7,15 @@ import android.view.View
 import android.view.ViewParent
 import androidx.annotation.IdRes
 import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.core.view.forEach
 import androidx.customview.widget.Openable
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.NavGraph
 import androidx.navigation.NavOptions
+import com.cems.devtask.R
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationView
-import com.cems.devtask.R
 
 fun NavController.setUpWith(
     navigationView: NavigationView,

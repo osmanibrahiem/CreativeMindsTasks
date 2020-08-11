@@ -6,31 +6,23 @@ import android.text.TextUtils
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
-import androidx.core.view.isVisible
-import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
-import androidx.paging.LoadState
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.cems.devtask.R
 import com.cems.devtask.databinding.DialogLinkBinding
 import com.cems.devtask.databinding.FragmentMainBinding
+import com.cems.devtask.helper.extensions.isNetworkConnected
+import com.cems.devtask.helper.extensions.log
 import com.cems.devtask.helper.extensions.openUrl
+import com.cems.devtask.model.ReposItem
 import com.cems.devtask.model.ResponseResult
+import com.cems.devtask.ui.PaginationScrollListener
 import com.cems.devtask.ui.adapter.ReposAdapter
-import com.cems.devtask.ui.adapter.ReposLoadStateAdapter
 import com.cems.devtask.ui.base.BaseFragment
 import com.cems.devtask.ui.viewmodel.MainViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.distinctUntilChangedBy
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainFragment : BaseFragment<FragmentMainBinding, MainViewModel>() {
@@ -43,6 +35,8 @@ class MainFragment : BaseFragment<FragmentMainBinding, MainViewModel>() {
     private var filterName: String? = null
 
     private lateinit var reposAdapter: ReposAdapter
+    private var currentPage = 1
+    private var isLastPage = false
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,13 +63,13 @@ class MainFragment : BaseFragment<FragmentMainBinding, MainViewModel>() {
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 filterName = query
-//                categoriesAdapter.filter.filter(query)
+                reposAdapter.filter.filter(query)
                 return false
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
                 filterName = newText
-//                categoriesAdapter.filter.filter(newText)
+                reposAdapter.filter.filter(newText)
                 return false
             }
         })
@@ -116,27 +110,53 @@ class MainFragment : BaseFragment<FragmentMainBinding, MainViewModel>() {
 
         binding.list.run {
             setHasFixedSize(true)
-            layoutManager = LinearLayoutManager(context)
-            adapter = reposAdapter.withLoadStateHeaderAndFooter(
-                header = ReposLoadStateAdapter { reposAdapter.retry() },
-                footer = ReposLoadStateAdapter { reposAdapter.retry() }
-            )
+            val linearLayoutManager = LinearLayoutManager(context)
+            linearLayoutManager.orientation = LinearLayoutManager.VERTICAL
+            layoutManager = linearLayoutManager
+            adapter = reposAdapter
+            addOnScrollListener(object : PaginationScrollListener(linearLayoutManager) {
+                override fun isLastPage(): Boolean {
+                    return if (context.isNetworkConnected())
+                        isLastPage
+                    else true
+                }
+
+                override fun isLoading() = binding.swipe.isRefreshing
+
+                override fun loadMoreItems() {
+                    loadPage(page + 1)
+                }
+
+            })
         }
 
-        binding.swipe.setOnRefreshListener { reposAdapter.retry() }
+        binding.swipe.setOnRefreshListener(this)
+
+        onRefresh()
+    }
 
 
-        lifecycleScope.launch {
-            @OptIn(ExperimentalCoroutinesApi::class)
-            reposAdapter.loadStateFlow.collectLatest { loadStates ->
-                binding.swipe.isRefreshing = loadStates.refresh is LoadState.Loading
-            }
-        }
+    var page = 1
 
-        lifecycleScope.launch {
-            @OptIn(ExperimentalCoroutinesApi::class)
-            viewModel.fetchRepositories().collectLatest {
-                reposAdapter.submitData(it)
+    override fun onRefresh() {
+        super.onRefresh()
+        loadPage(1)
+    }
+
+    private fun loadPage(page: Int) {
+        this.page = page
+        log("cms_api", "load page : $page")
+        viewModel.fetchRepositories(page).observe(this) { result ->
+            binding.swipe.isRefreshing = result is ResponseResult.Loading
+            if (result is ResponseResult.Success) {
+                isLastPage = result.data.isEmpty()
+                if (page == 1) {
+                    reposAdapter.items.clear()
+                    reposAdapter.notifyDataSetChanged()
+                }
+                reposAdapter.items = result.data as ArrayList<ReposItem>
+            } else if (result is ResponseResult.Error) {
+                log("cms_api", "Error ", result.throwable)
             }
         }
     }

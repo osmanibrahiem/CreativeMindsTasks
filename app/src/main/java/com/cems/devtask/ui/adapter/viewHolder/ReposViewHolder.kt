@@ -13,7 +13,7 @@ class ReposViewHolder(private val binding: RepoViewItemBinding) :
         binding.reposItem = reposItem
         binding.executePendingBindings()
 
-        binding.cardView.setOnClickListener {  }
+        binding.cardView.setOnClickListener { }
         binding.cardView.setOnLongClickListener {
             listener?.invoke(reposItem)
             true

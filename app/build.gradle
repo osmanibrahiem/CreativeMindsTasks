@@ -99,9 +99,9 @@ dependencies {
     //Logging Network Calls
     implementation 'com.squareup.okhttp3:logging-interceptor:4.8.0'
 
-    // Paging
-    implementation "androidx.paging:paging-runtime:3.0.0-alpha04"
-    implementation "androidx.paging:paging-rxjava2:3.0.0-alpha04"
+    // workManager
+    implementation "androidx.work:work-runtime-ktx:2.4.0"
+    implementation "androidx.work:work-rxjava2:2.4.0"
 
     //koin dependency Injection
     implementation 'org.koin:koin-androidx-viewmodel:2.0.1'

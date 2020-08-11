@@ -1,7 +1,9 @@
 package com.cems.devtask.repository.local
 
-import androidx.paging.PagingSource
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
 import com.cems.devtask.model.ReposItem
 import io.reactivex.Observable
 
@@ -9,12 +11,12 @@ import io.reactivex.Observable
 interface ReposDao {
 
     @Query("SELECT * FROM repos_items")
-    fun getAllItems(): PagingSource<Int, ReposItem>
+    fun getAllItems(): Observable<List<ReposItem>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(repos: List<ReposItem>)
+    fun insertAll(repos: List<ReposItem>)
 
     @Query("DELETE FROM repos_items")
-    suspend fun clearRepos()
+    fun clearRepos()
 
 }
