@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="reposItem"
+            type="com.cems.devtask.model.ReposItem" />
+    </data>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/_10sdp"
+        android:layout_marginVertical="@dimen/_5sdp"
+        app:cardBackgroundColor="@{reposItem.fork ? @color/light_green : @color/white}"
+        app:cardCornerRadius="@dimen/_5sdp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_margin="@dimen/_5sdp"
+            android:layout_height="wrap_content">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/owner_profile_img"
+                android:layout_width="@dimen/_40sdp"
+                android:layout_height="@dimen/_40sdp"
+                android:src="@drawable/ic_placeholder"
+                app:layout_constraintEnd_toStartOf="@id/repo_name"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:loadImage="@{reposItem.owner.avatarUrl}"
+                tools:src="@tools:sample/avatars" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/repo_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/_10sdp"
+                android:text="@{reposItem.name}"
+                android:textColor="@color/titleColor"
+                android:textSize="@dimen/_16sdp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/owner_profile_img"
+                app:layout_constraintTop_toTopOf="@id/owner_profile_img"
+                tools:text="@tools:sample/full_names" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/owner_username"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@{reposItem.owner.login}"
+                android:textSize="@dimen/_11sdp"
+                app:layout_constraintEnd_toEndOf="@id/repo_name"
+                app:layout_constraintStart_toStartOf="@id/repo_name"
+                app:layout_constraintTop_toBottomOf="@+id/repo_name"
+                tools:text="@tools:sample/first_names" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/item_date"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/_9sdp"
+                app:layout_constraintEnd_toEndOf="@id/owner_username"
+                app:layout_constraintStart_toStartOf="@id/owner_username"
+                app:layout_constraintTop_toBottomOf="@+id/owner_username"
+                app:spiltDate="@{reposItem.createdAt}"
+                tools:text="@tools:sample/date/ddmmyy" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/repo_description"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_5sdp"
+                android:maxLines="10"
+                android:text="@{reposItem.description}"
+                android:textColor="?android:textColorPrimary"
+                android:textSize="@dimen/_12sdp"
+                app:layout_constraintEnd_toEndOf="@id/repo_name"
+                app:layout_constraintStart_toStartOf="@id/owner_profile_img"
+                app:layout_constraintTop_toBottomOf="@id/item_date"
+                tools:text="@tools:sample/lorem/random" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/repo_language"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="0dp"
+                android:layout_marginTop="@dimen/_5sdp"
+                android:text="@{@string/language(reposItem.language)}"
+                android:textSize="@dimen/_11sdp"
+                app:layout_constraintStart_toStartOf="@id/owner_profile_img"
+                app:layout_constraintTop_toBottomOf="@+id/repo_description"
+                tools:text="@tools:sample/first_names" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/star"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_star"
+                app:layout_constraintBottom_toBottomOf="@+id/repo_stars"
+                app:layout_constraintEnd_toStartOf="@+id/repo_stars"
+                app:layout_constraintTop_toTopOf="@+id/repo_stars" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/repo_stars"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{String.valueOf(reposItem.stargazersCount)}"
+                android:textSize="@dimen/_11sdp"
+                app:layout_constraintBaseline_toBaselineOf="@+id/repo_forks"
+                app:layout_constraintEnd_toStartOf="@id/forks"
+                tools:text="0" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/forks"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_git_branch"
+                app:layout_constraintBottom_toBottomOf="@+id/repo_forks"
+                app:layout_constraintEnd_toStartOf="@+id/repo_forks"
+                app:layout_constraintTop_toTopOf="@+id/repo_forks" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/repo_forks"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_5sdp"
+                android:text="@{String.valueOf(reposItem.forksCount)}"
+                android:textSize="@dimen/_11sdp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/repo_description"
+                tools:text="0" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+</layout>
+
